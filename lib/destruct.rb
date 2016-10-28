@@ -1,5 +1,3 @@
-require "delegate"
-
 require_relative "destruct/dig"
 require_relative "destruct/hash"
 require_relative "destruct/object"
