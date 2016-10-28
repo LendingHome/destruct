@@ -1,12 +1,12 @@
 class Destruct
   module Object
-    def destruct(*args, &block)
-      Destruct.new(self, *args, &block).to_h
+    def destruct(*paths, &block)
+      Destruct.new(self, *paths, &block).to_h
     end
 
-    def dig(method, *others)
+    def dig(method, *paths)
       object = send(method) if respond_to?(method)
-      others.any? ? object&.dig(*others) : object
+      paths.any? ? object&.dig(*paths) : object
     end
   end
 end
