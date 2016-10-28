@@ -1,12 +1,12 @@
 module Destruct
   class Dig
-    def initialize(object, *args)
+    def initialize(object, path)
       @object = object
-      @args = args
+      @path = path
     end
 
     def to_h
-      @object.dig(*@args.first.keys)
+      @object.dig(*@path.keys)
     end
   end
 end
