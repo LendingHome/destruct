@@ -3,7 +3,7 @@
 set -eo pipefail
 
 if [[ -z "$DOCKER" ]]; then
-  echo "--- :buildkite: Building zero_downtime_migrations"
+  echo "--- :buildkite: Building destruct"
   buildkite-agent --version
 
   echo "branch: $BUILDKITE_BRANCH"
@@ -56,10 +56,6 @@ cpus=$(nproc 2>/dev/null || echo 1)
 [[ $cpus -eq 1 ]] && jobs=1 || jobs=$((cpus - 1))
 options="--path vendor/bundle --jobs $jobs --retry 3 --frozen --no-cache --no-prune"
 bundle check || bundle install $options
-
-echo "--- :postgres: Creating database"
-sleep 3 # give postgres container time to boot
-createdb -h postgres -U postgres -w zero_downtime_migrations || true
 
 if [[ -z "$REBUILD_CACHE" ]]; then
   echo "+++ :rspec: Running rspec tests"
