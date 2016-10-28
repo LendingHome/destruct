@@ -7,10 +7,9 @@ module Destruct
       end
     end
 
-    def dig(*methods)
-      methods.reduce(self) do |object, method|
-        object.send(method) if object.respond_to?(method)
-      end
+    def dig(method, *others)
+      object = send(method) if respond_to?(method)
+      others.any? ? object&.dig(*others) : object
     end
   end
 end

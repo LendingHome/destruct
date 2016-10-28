@@ -15,6 +15,20 @@ RSpec.describe Destruct::Object do
       expect(actual).to eq("TSET")
     end
 
+    it "resolves nested hashes" do
+      struct = Struct.new(:hash)
+      object = struct.new(one: { two: 2 })
+      actual = object.dig(:hash, :one, :two)
+      expect(actual).to eq(2)
+    end
+
+    it "resolves nested arrays" do
+      struct = Struct.new(:array)
+      object = struct.new([1, [2, 3]])
+      actual = object.dig(:array, 1, 0)
+      expect(actual).to eq(2)
+    end
+
     it "returns nil for undefined methods" do
       actual = subject.dig(:upcase, :undefined, :reverse)
       expect(actual).to be_nil
