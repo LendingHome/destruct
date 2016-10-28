@@ -1,3 +1,4 @@
+require_relative "destruct/dsl"
 require_relative "destruct/hash"
 require_relative "destruct/object"
 require_relative "destruct/resolver"

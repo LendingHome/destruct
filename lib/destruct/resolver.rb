@@ -6,7 +6,36 @@ module Destruct
     end
 
     def to_h
-      @object.dig(*@path.keys)
+      case @path
+      when Array
+        { @path.last => @object.dig(*@path) }
+      when ::Hash
+        resolve_recursively
+      else
+        new(@object, Array(@path)).to_h
+      end
+    end
+
+    private
+
+    def new(*args)
+      self.class.new(*args)
+    end
+
+    def resolve(key, values)
+      @object.dig(key).tap do |object|
+        Array(values).each do |value|
+          yield new(object, value)
+        end
+      end
+    end
+
+    def resolve_recursively
+      @path.each_with_object({}) do |(key, values), hash|
+        resolve(key, values) do |resolver|
+          hash.update(resolver.to_h)
+        end
+      end
     end
   end
 end
