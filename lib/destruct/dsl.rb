@@ -1,10 +1,11 @@
-module Destruct
+class Destruct
   class DSL
-    attr_reader :args
-
     def initialize(&block)
-      @args = []
-      instance_eval(block) if block
+      instance_eval(&block)
+    end
+
+    def paths
+      @paths ||= []
     end
   end
 end

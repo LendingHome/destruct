@@ -1,4 +1,4 @@
-module Destruct
+class Destruct
   class Hash < ::Hash
     alias_method :to_ary, :values
 

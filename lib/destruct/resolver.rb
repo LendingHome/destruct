@@ -1,4 +1,4 @@
-module Destruct
+class Destruct
   class Resolver
     def initialize(object, path)
       @object = object
@@ -12,7 +12,7 @@ module Destruct
       when ::Hash
         resolve_recursively
       else
-        new(@object, Array(@path)).to_h
+        new(@object, paths).to_h
       end
     end
 
@@ -20,6 +20,10 @@ module Destruct
 
     def new(*args)
       self.class.new(*args)
+    end
+
+    def paths
+      Array(@path)
     end
 
     def resolve(key, values)
