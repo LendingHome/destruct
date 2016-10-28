@@ -12,6 +12,11 @@ module Destruct
       __getobj__.values
     end
 
+    def update(*args)
+      hash = __getobj__.update(*args)
+      self.class.new(hash)
+    end
+
     private
 
     def method_missing(method, *)

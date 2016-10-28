@@ -1,14 +1,10 @@
 module Destruct
   module Object
-    # def destruct(*args)
-    #   args.reduce(Hash.new) do |hash, arg|
-    #     dig = Dig.new(self, arg)
-    #     hash.update(dig.to_h)
-    #   end
-    # end
-
     def destruct(*args)
-      Dig.new(self, *args).to_h
+      args.reduce(Hash.new({})) do |hash, arg|
+        dig = Dig.new(self, arg)
+        hash.update(dig.to_h)
+      end
     end
 
     def dig(*methods)
