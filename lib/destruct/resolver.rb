@@ -12,15 +12,11 @@ class Destruct
       when ::Hash
         resolve_recursively
       else
-        new(@object, paths).to_h
+        self.class.new(@object, paths).to_h
       end
     end
 
     private
-
-    def new(*args)
-      self.class.new(*args)
-    end
 
     def paths
       Array(@path)
@@ -29,7 +25,7 @@ class Destruct
     def resolve(key, values)
       @object.dig(key).tap do |object|
         Array(values).each do |value|
-          yield new(object, value)
+          yield self.class.new(object, value)
         end
       end
     end
