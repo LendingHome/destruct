@@ -1,5 +1,5 @@
 module Destruct
-  class Dig
+  class Resolver
     def initialize(object, path)
       @object = object
       @path = path

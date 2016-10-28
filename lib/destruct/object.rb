@@ -2,7 +2,7 @@ module Destruct
   module Object
     def destruct(*args)
       args.each_with_object(Hash.new) do |arg, hash|
-        values = Dig.new(self, arg).to_h
+        values = Resolver.new(self, arg).to_h
         values.each { |key, value| hash[key] = value }
       end
     end

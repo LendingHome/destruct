@@ -1,6 +1,6 @@
-require_relative "destruct/dig"
 require_relative "destruct/hash"
 require_relative "destruct/object"
+require_relative "destruct/resolver"
 
 module Destruct
   ::Object.send(:include, Object)
