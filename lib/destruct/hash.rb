@@ -1,20 +1,13 @@
 module Destruct
-  class Hash < SimpleDelegator
+  class Hash < ::Hash
+    alias_method :to_ary, :values
+
     def [](key)
-      __getobj__[key] || __getobj__[key.to_s]
+      super(key) || super(key.to_s)
     end
 
     def key?(key)
-      __getobj__.key?(key) || __getobj__.key?(key.to_s)
-    end
-
-    def to_ary
-      __getobj__.values
-    end
-
-    def update(*args)
-      hash = __getobj__.update(*args)
-      self.class.new(hash)
+      super(key) || super(key.to_s)
     end
 
     private

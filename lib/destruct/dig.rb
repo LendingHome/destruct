@@ -5,12 +5,8 @@ module Destruct
       @args = args
     end
 
-    def dig
-      @object.dig(*@args.first.keys)
-    end
-
     def to_h
-      Hash.new(dig)
+      @object.dig(*@args.first.keys)
     end
   end
 end

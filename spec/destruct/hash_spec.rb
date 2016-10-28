@@ -1,5 +1,5 @@
 RSpec.describe Destruct::Hash do
-  subject { described_class.new(hash) }
+  subject { described_class.new.replace(hash) }
 
   let(:hash) do
     {

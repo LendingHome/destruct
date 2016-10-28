@@ -1,9 +1,9 @@
 module Destruct
   module Object
     def destruct(*args)
-      args.reduce(Hash.new({})) do |hash, arg|
-        dig = Dig.new(self, arg)
-        hash.update(dig.to_h)
+      args.each_with_object(Hash.new) do |arg, hash|
+        values = Dig.new(self, arg).to_h
+        values.each { |key, value| hash[key] = value }
       end
     end
 
