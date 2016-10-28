@@ -6,13 +6,15 @@ class Destruct
     end
 
     def [](path)
-      self.class.new.tap do |dsl|
-        @paths[path] = dsl
-      end
+      @paths[path] ||= self.class.new
     end
 
     def paths
-      @paths.to_a
+      @paths.each_with_object([]) do |(key, dsl), paths|
+        nested = dsl.paths
+        paths << [key] if nested.empty?
+        nested.each { |path| paths << path.unshift(key) }
+      end
     end
 
     private
