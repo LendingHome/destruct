@@ -1,12 +1,14 @@
 class Destruct
   class DSL
     def initialize(&block)
-      @paths = {}
+      @paths = []
       instance_eval(&block) if block
     end
 
     def [](path)
-      @paths[path] ||= self.class.new
+      self.class.new.tap do |dsl|
+        @paths << [path, dsl]
+      end
     end
 
     def paths

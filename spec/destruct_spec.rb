@@ -37,8 +37,9 @@ RSpec.describe Destruct do
       hash = { headers: %i(content_type status) }
 
       actual = subject.destruct(:body, array, hash) do
+        metadata
         metadata.one
-        metadata[:two]
+        metadata[:two] if respond_to?(:anything)
         metadata.nested["multiple words"].test
       end
 
@@ -46,6 +47,8 @@ RSpec.describe Destruct do
       expect(actual.content_type).to eq("text/html")
       expect(actual.status).to eq(200)
       expect(actual.deep).to eq(true)
+
+      expect(actual.metadata).to eq(subject[:metadata])
       expect(actual.one).to eq(1)
       expect(actual.two).to eq(2)
       expect(actual.test).to eq("example")
