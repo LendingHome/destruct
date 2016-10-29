@@ -1,9 +1,9 @@
 # ![LendingHome](https://cloud.githubusercontent.com/assets/2419/19467866/7efa93a8-94c8-11e6-93e7-4375dbb8a7bc.png) destruct
 [![Code Climate](https://codeclimate.com/github/LendingHome/destruct/badges/gpa.svg)](https://codeclimate.com/github/LendingHome/destruct) [![Coverage](https://codeclimate.com/github/LendingHome/destruct/badges/coverage.svg)](https://codeclimate.com/github/LendingHome/destruct) [![Gem Version](https://badge.fury.io/rb/destruct.svg)](http://badge.fury.io/rb/destruct)
 
-> E6S style object destructuring in Ruby
+> ES6 style object destructuring in Ruby
 
-Check out the JavaScript ES6 [documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment) or [tutorial](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment) for more information about object destructuring.
+Check out the JavaScript [ES6 object destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment) documentation for more information.
 
 ## Installation
 
@@ -29,9 +29,9 @@ This gem introduces a couple of new methods to the `Object` class for more compl
 
 ### `Object#dig`
 
-This behaves just like the `dig` methods in `Array`, `Hash`, and `Struct`. It allows ALL objects in Ruby to be destructured.
+This behaves just like the `dig` methods in `Array`, `Hash`, and `Struct` allowing ALL objects to be destructured.
 
-Its implementation is pretty simple and just calls `send` to pass valid method calls thru to the object recursively.
+The implementation simply uses `send` to pass valid method calls thru to objects recursively.
 
 ```ruby
 class Object
@@ -42,13 +42,146 @@ class Object
 end
 ```
 
+This method behaves very similar to the safe navigation operator `&.` but checks if the object responds to the method before attempting to call it. Invalid method calls return `nil` instead of raising `NoMethodError`.
+
+```ruby
+"test".dig(:upcase, :reverse) # "TSET"
+"test".dig(:invalid, :chain, :of, :methods) # nil
+```
+
+It also delegates to native `dig` implementations for `Array`, `Hash`, or `Struct` objects whenever possible.
+
+```ruby
+class Blog
+  def posts
+    [
+      { "title" => "Testing" },
+      { "title" => "Example" }
+    ]
+  end
+end
+
+Blog.new.dig(:posts, 1, "title") # "Example"
+```
+
 ### `Object#destruct`
 
-TODO
+This method is like a hybrid of all the other native Ruby destructuring methods! Let's define an example object:
+
+```ruby
+object = {
+  id: 123,
+  title: "Hi",
+  translations: [
+    {
+      locale: "es_MX",
+      last_edit: "2014-04-14T08:43:37",
+      title: "Hola"
+    }
+  ],
+  url: "/hi-123"
+}
+```
+
+It behaves like `values_at` and looks up values by keys:
+
+```ruby
+id, url = object.destruct(:id, :url)
+puts id # 123
+puts url # "/hi-123"
+```
+
+It behaves like `dig` to lookup nested values:
+
+```ruby
+title, locale_title = object.destruct(:title, [:translations, 0, :title])
+puts title # "Hi"
+puts locale_title # "Hola"
+```
+
+It accepts hashes to `dig` out nested values as well:
+
+```ruby
+locale, title = object.destruct(translations: { 0 => [:locale, :title] })
+puts locale # "es_MX"
+puts title # "Hola"
+```
+
+It accepts a mixture of different argument types:
+
+```ruby
+title, last_edit, locale, locale_title = object.destruct(
+  :title,
+  [:translations, 0, :last_edit],
+  translations: { 0 => [:locale, :title] }
+)
+
+puts title # "Hi"
+puts last_edit # "2014-04-14T08:43:37"
+puts locale # "es_MX"
+puts locale_title # "Hola"
+```
+
+It accepts a block to lookup nested values with a clear and convenient DSL:
+
+```ruby
+title, last_edit, locale, url = object.destruct do
+  title
+  translations[0].last_edit
+  translations[0][:locale]
+  url
+end
+
+puts title # "Hi"
+puts last_edit # "2014-04-14T08:43:37"
+puts locale # "es_MX"
+puts url # "/hi-123"
+```
+
+It returns a `Destruct::Hash` object when the return values are not destructured:
+
+```ruby
+destructured = object.destruct do
+  title
+  translations[0].last_edit
+  translations[0][:locale]
+  url
+end
+
+puts destructured.title # "Hi"
+puts destructured[:title] # "Hi"
+puts destructured[0] # "Hi"
+
+puts destructured.last_edit # "2014-04-14T08:43:37"
+puts destructured.locale # "es_MX"
+
+puts destructured.url # "/hi-123"
+puts destructured[-1] # "/hi-123"
+
+puts destructured[999] # nil
+puts destructured[:missing] # nil
+puts destructured.missing # NoMethodError
+```
+
+Note that `Destruct::Hash` values are overwritten if there are multiple with the same keys:
+
+```ruby
+destructured = object.destruct(:title, [:translations, 0, :title])
+
+puts destructured.title # "Hola"
+
+# This is where the index lookups really come in handy
+puts destructured[0] # "Hi"
+puts destructured[1] # "Hola"
+```
+
+The return value destructuring is done using `Destruct::Hash#to_ary` for implicit `Array` conversion!
 
 ## Examples
 
-Let's compare some of the JavaScript [ES6 syntax examples](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment) with their Ruby equivalents.
+Let's compare some of the JavaScript [ES6 destructuring examples](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment) with their Ruby equivalents.
+
+Note that almost all of these examples simply use native Ruby 2.3+ features!
 
 ### Array destructuring
 
@@ -117,8 +250,7 @@ function f() {
   return [1, 2];
 }
 
-var a, b;
-[a, b] = f();
+var [a, b] = f();
 
 console.log(a); // 1
 console.log(b); // 2
@@ -159,10 +291,10 @@ puts a # 1
 puts b # 3
 ```
 
-### Ignoring the remaining values
+#### Ignoring remaining values
 
 ```javascript
-var a, b = [1, 2, 3, 4];
+var [a, b] = [1, 2, 3, 4];
 
 console.log(a); // 1
 console.log(b); // 2
@@ -175,7 +307,21 @@ puts a # 1
 puts b # 2
 ```
 
-### Destructure a nested array
+#### Capture remaining values
+
+```javascript
+var [a, b, ...c] = [1, 2, 3, 4];
+
+console.log(c); // [3, 4]
+```
+
+```ruby
+a, b, *c = [1, 2, 3, 4]
+
+puts c.inspect # [3, 4]
+```
+
+#### Destructure a nested array
 
 ```javascript
 const avengers = [
@@ -201,7 +347,7 @@ black_widow, iron_man, war_machine, cap, falcon = avengers.flatten
 puts war_machine # "James Rhodes"
 ```
 
-### Pluck a single value from a deeply nested array
+#### Pluck a single value from a deeply nested array
 
 ```javascript
 const avengers = [
@@ -225,24 +371,6 @@ avengers = [
 potts = avengers.dig(1, 0, 1)
 
 puts potts # "Pepper Potts"
-```
-
-### Capture all remaining items
-
-```javascript
-const avengers = ["Natasha Romanoff", "Tony Stark", "Steve Rogers"];
-
-const [blackWidow, ...theOthers] = avengers;
-
-console.log(theOthers); // ["Tony Stark", "Steve Rogers"]
-```
-
-```ruby
-avengers = ["Natasha Romanoff", "Tony Stark", "Steve Rogers"]
-
-black_widow, *the_others] = avengers
-
-puts the_others.inspect # ["Tony Stark", "Steve Rogers"]
 ```
 
 #### Pulling values from a regular expression match
@@ -323,7 +451,7 @@ puts a # 3
 puts b # 5
 ```
 
-#### Setting a function parameter's default value
+#### Setting default function parameters
 
 ```javascript
 function drawES6Chart({size = "big", cords = { x: 0, y: 0 }, radius = 25} = {}) {
@@ -505,7 +633,7 @@ puts "userId: #{user_id(user)}" # "userId: 42"
 whois(user) # "jdoe is John"
 ```
 
-#### Computed object property names and destructuring
+#### Computed object property names
 
 ```javascript
 let key = "z";
