@@ -1,7 +1,9 @@
 class Destruct
   class Hash < ::Hash
     def [](key)
-      super(key) || super(key.to_s)
+      super(key) || super(key.to_s) || to_ary[key]
+    rescue TypeError
+      nil
     end
 
     def []=(key, value)

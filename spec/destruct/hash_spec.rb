@@ -23,10 +23,18 @@ RSpec.describe Destruct::Hash do
       expect(subject["multi word"]).to eq("example")
     end
 
+    it "looks up by index key" do
+      expect(subject[0]).to eq(200)
+      expect(subject[1]).to eq("example")
+      expect(subject[2]).to eq("string")
+      expect(subject[-1]).to eq("string")
+    end
+
     it "returns nil when key is not found" do
       expect(subject[:invalid]).to be_nil
       expect(subject["invalid"]).to be_nil
-      expect(subject[1]).to be_nil
+      expect(subject[99]).to be_nil
+      expect(subject[{}]).to be_nil
     end
   end
 
