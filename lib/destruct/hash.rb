@@ -1,13 +1,20 @@
 class Destruct
   class Hash < ::Hash
-    alias_method :to_ary, :values
-
     def [](key)
       super(key) || super(key.to_s)
     end
 
+    def []=(key, value)
+      to_ary << value
+      super
+    end
+
     def key?(key)
       super(key) || super(key.to_s)
+    end
+
+    def to_ary
+      @to_ary ||= values
     end
 
     private

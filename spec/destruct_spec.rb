@@ -7,6 +7,7 @@ RSpec.describe Destruct do
         status: 200
       },
       metadata: {
+        body: "duplicate",
         one: 1,
         two: 2,
         nested: {
@@ -52,6 +53,16 @@ RSpec.describe Destruct do
       expect(actual.one).to eq(1)
       expect(actual.two).to eq(2)
       expect(actual.test).to eq("example")
+    end
+
+    it "parses keys with the same name" do
+      actual = subject.destruct(:body, metadata: :body)
+      expect(actual.body).to eq("duplicate")
+      expect(actual.size).to eq(1)
+
+      body, metadata_body = actual
+      expect(body).to eq("test")
+      expect(metadata_body).to eq("duplicate")
     end
   end
 end
