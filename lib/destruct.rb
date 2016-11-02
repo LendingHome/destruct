@@ -15,6 +15,16 @@ class Destruct
     @block = block || proc { }
   end
 
+  def to_h
+    paths.each_with_object(Hash.new) do |path, hash|
+      resolve(path).each do |key, value|
+        hash[key] = value
+      end
+    end
+  end
+
+  private
+
   def dsl
     DSL.new(&@block)
   end
@@ -25,13 +35,5 @@ class Destruct
 
   def resolve(path)
     Resolver.new(@object, path).to_h
-  end
-
-  def to_h
-    paths.each_with_object(Hash.new) do |path, hash|
-      resolve(path).each do |key, value|
-        hash[key] = value
-      end
-    end
   end
 end
