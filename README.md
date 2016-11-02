@@ -5,17 +5,13 @@
 
 Check out the JavaScript [ES6 object destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment) documentation for more information.
 
-## Installation
+## Why?
 
-Simply add this gem to the project `Gemfile`.
+This was **primarily a learning exercise** to understand how this newer ES6 feature could work under the hood. We're not currently using this in production anywhere but it was a pretty fun challenge to solve.
 
-```ruby
-gem "destruct"
-```
+---
 
-## Usage
-
-Ruby 2.3+ has some built-in methods and operators for simple object destructuring:
+Ruby 2.3+ already has some built-in methods and operators for simple object destructuring:
 
 * [`Array#dig`](http://ruby-doc.org/core-2.3.0/Array.html#method-i-dig)
 * [`Hash#dig`](http://ruby-doc.org/core-2.3.0/Hash.html#method-i-dig)
@@ -26,6 +22,21 @@ Ruby 2.3+ has some built-in methods and operators for simple object destructurin
 * [Safe navigation operator `&.`](https://bugs.ruby-lang.org/issues/11537)
 
 This gem introduces a couple of new methods to the `Object` class for more complex destructuring.
+
+* `Object#dig`
+* `Object#destruct`
+
+It's mostly **useful for fetching multiple nested values out of objects** in a single method call.
+
+## Installation
+
+Add this gem to the project `Gemfile`.
+
+```ruby
+gem "destruct"
+```
+
+## Usage
 
 ### `Object#dig`
 
@@ -138,7 +149,7 @@ puts locale # "es_MX"
 puts url # "/hi-123"
 ```
 
-It returns a `Destruct::Hash` object when the return values are not destructured:
+It returns a `Destruct::Hash` object when the return values are not splatted:
 
 ```ruby
 destructured = object.destruct do
